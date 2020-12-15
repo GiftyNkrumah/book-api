@@ -7,7 +7,7 @@ const app = express()
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
 
-const dbLink = "mongodb+srv://akosua_sal:Salda72532@cluster0.low86.mongodb.net/books?retryWrites=true&w=majority"
+const dbLink = "//database"
 const port = process.env.DBPORT ||1200
 const routes = require('./routes/routes')
 

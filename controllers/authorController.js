@@ -2,12 +2,29 @@ const Author = require('../models/authorModel')
 
 function handleError(error) {
 
+    let err = {name: ''}
+
+    if (error.message === 'incorrect author') {
+        err.name = 'that author does not exist in our database'
+    }
+
+       if (error.code === 11000) {
+        err.message = 'that author is registered already'
+    }    
+
+    if (error.message.includes('user validation failed')) {
+        Object.values(error.errors).forEach(({properties}) => {
+            err[properties.path] = properties.message
+        })
+    }
+
+    return err
 }
 
 const authorCtrl = {}
 
 // create a new author
-authorCtrl.new = async(request, response) => {
+authorCtrl.newauthor = async(request, response) => {
     try {
         let newAuthor = new Author(request.body)
         let result = await newAuthor.save()
@@ -21,7 +38,7 @@ authorCtrl.new = async(request, response) => {
 // find an author
 authorCtrl.view = async(request, response) => {
     try{
-        let author = await Author.findOne({name: request.body.username})
+        let author = await Author.findOne({_id: request.params.id})
         if (!author) {
             response.status(400).send({message: 'Author not found'})
         } else {
@@ -34,9 +51,9 @@ authorCtrl.view = async(request, response) => {
 }
 
 // Delete an author
-authorCtrl.delete = async(req, res) => {
+authorCtrl.deleteauthor = async(req, res) => {
     try {
-        let person = await Author.findOneAndDelete({_id: req.params.id})
+        await Author.findOneAndDelete({_id: req.params.id})
         res.status(200).send({message: 'Account deleted'})
     } catch (error) {
         const warnings = handleError(error)
